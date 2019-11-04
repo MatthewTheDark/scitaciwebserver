@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo website</title>
+    <script>
+        let number1;
+        let number2;
+        let operator;
+        let result;
+
+        function rannum(min,max) {
+            let range = max-min;
+            let nc;
+            nc = Math.random()*range+min;
+            return Math.round(nc);
+        }
+        function generateProblem() {
+            number1 = rannum(1,20);
+            number2 = rannum(1,20);
+            let operatornum = rannum(1,4);
+            if (operatornum === 1){
+                operator = "+";
+                result = number1 + number2;
+            } else if (operatornum === 2){
+                operator = "-";
+                result = number1 - number2;
+            } else if (operatornum === 3){
+                operator = "*";
+                result = number1 * number2;
+            } else {
+                operator = "/";
+                result = number1 / number2;
+            }
+        }
+        function displayResult() {
+            return result
+        }
+        function NameByDate() {
+            let d = document.getElementById("calendar").valueAsDate;
+            fetch("http://localhost:8888/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("svatekChosen").innerHTML = obj.svatek;
+
+                });
+            });
+
+
+        }
+        function solveProblem(){
+            let probleminput = document.getElementById("probleminput").value;
+            if (probleminput === result) {
+                document.getElementById("response").value = "Správně!";
+            } else {
+                document.getElementById("response").value = "Špatně!";
+            }
+
+            fetch("http://localhost:8888/chat/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
+                response.text().then(function(text) {
+                    document.getElementById("probleminput").value = "";
+                    //kontrolovat status?
+                });
+            });
+        }
+        function ListMsg(){
+            let probleminput = document.getElementById("probleminput").value;
+            fetch("http://localhost:8888/log/listproblems").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    let s = "";
+                    for (let o of obj.messages){
+                        s = s + o.number1 + "<br>" + o.number2 + "<br>" + o.operator + "<br>"+ o.result + "<br>";
+
+                    }
+                    document.getElementById("minulepriklady").innerHTML = s;
+
+
+
+                });
+            });
+        }
+        function timer() {
+            setInterval(ListMsg, 1000)
+        }
+    </script>
+</head>
+<body onload="timer()" style="font-family: 'Lucida Calligraphy',serif; font-style: italic">
+
+
+
+<h1>Matematické příklady:</h1>
+
+
+
+Kolik je <b id="number1"></b> <b id="operation"></b> <b id="number2"></b> ?
+<br><br>
+
+<h1>chat</h1>
+<div id="minulepriklady"></div>
+
+//tady zobrazovat příklad!
+
+<br><br>
+
+<input type="text" id="probleminput"><input type="button" value="Vyřeš příklad" onclick="solveProblem()">
+
+<b id="response"></b> Výsledek je <b id="result"></b> !
+<br><br>
+
+<input type="button" value="Zobraz výsledek" onclick="displayResult()"><input type="button" value="Nový příklad" onclick="generateProblem()">
+
+</body>
+</html>
