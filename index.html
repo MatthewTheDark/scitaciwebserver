@@ -20,8 +20,7 @@
             number2 = rannum(1,20);
             let operatornum = rannum(1,4);
             if (operatornum === 1){
-                operator = "+";
-                operator = JSON.stringify(operator);
+                operator = "\+";
                 result = number1 + number2;
             } else if (operatornum === 2){
                 operator = "-";
@@ -37,26 +36,34 @@
             document.getElementById("number1").innerHTML = number1;
             document.getElementById("number2").innerHTML = number2;
             document.getElementById("operator").innerHTML = operator;
-            document.getElementById("result").innerHTML = result;
-        }
-
-        function solveProblem(){
-            let probleminput = document.getElementById("probleminput").value;
-            if (probleminput === result) {
-                document.getElementById("response").value = "Správně!";
-                generateProblem()
-            } else {
-                document.getElementById("response").value = "Špatně!";
-            }
-
-            document.getElementById("response").value = number1;
-
+            //document.getElementById("result").innerHTML = result;
             fetch("http://localhost:8888/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
                 response.text().then(function(text) {
-                    document.getElementById("probleminput").value = "";
+                    document.getElementById("probleminput").innerHTML = "";
                     //kontrolovat status?
                 });
             });
+            ListMsg();
+        }
+
+        function solveProblem(){
+            if (parseInt(document.getElementById("probleminput").value) === result) {
+                document.getElementById("response").innerHTML = "Správně!";
+                fetch("http://localhost:8888/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
+                    response.text().then(function(text) {
+                        document.getElementById("probleminput").value = "";
+                        //kontrolovat status?
+                    });
+                });
+                displayResult()
+                generateProblem()
+            } else {
+                document.getElementById("response").innerHTML = "Špatně!";
+            }
+
+            //document.getElementById("response").value = number1;
+
+
         }
         function ListMsg(){
             let probleminput = document.getElementById("probleminput").value;
@@ -75,6 +82,10 @@
                 });
             });
         }
+        function displayResult() {
+            document.getElementById("response").innerHTML = "";
+            document.getElementById("result").innerHTML = "Výsledek je: " + result + "!";
+        }
         function onload(){
             generateProblem();
             timer();
@@ -85,13 +96,12 @@
         }
     </script>
 </head>
-<body onload="timer()" style="font-family: 'Lucida Calligraphy',serif; font-style: italic">
+<body onload="onload()" style="font-family: 'Lucida Calligraphy',serif; font-style: italic">
 
 <h1>Matematické příklady:</h1>
 
 <br><br>
 
-<h1>Příklady:</h1>
 <div id="minulepriklady"></div>
 
 Kolik je <b id="number1"></b> <b id="operator"></b> <b id="number2"></b> ?
@@ -100,7 +110,7 @@ Kolik je <b id="number1"></b> <b id="operator"></b> <b id="number2"></b> ?
 
 <input type="text" id="probleminput"><input type="button" value="Vyřeš příklad" onclick="solveProblem()">
 
-<b id="response"></b> Výsledek je <b id="result"></b> !
+<b id="response"></b> <b id="result"></b>
 <br><br>
 
 <input type="button" value="Zobraz výsledek" onclick="displayResult()"><input type="button" value="Nový příklad" onclick="generateProblem()">
