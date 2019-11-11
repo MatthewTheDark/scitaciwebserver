@@ -15,12 +15,16 @@
             nc = Math.random()*range+min;
             return Math.round(nc);
         }
-        function generateProblem() {
+        function generateProblem(clear=false) {
+            if (clear) {
+                document.getElementById("response").innerHTML = "";
+                document.getElementById("result").innerHTML = "";
+            }
             number1 = rannum(1,20);
             number2 = rannum(1,20);
             let operatornum = rannum(1,4);
             if (operatornum === 1){
-                operator = "\+";
+                operator = "&#43;";
                 result = number1 + number2;
             } else if (operatornum === 2){
                 operator = "-";
@@ -36,29 +40,26 @@
             document.getElementById("number1").innerHTML = number1;
             document.getElementById("number2").innerHTML = number2;
             document.getElementById("operator").innerHTML = operator;
-            //document.getElementById("result").innerHTML = result;
-            fetch("http://localhost:8888/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
-                response.text().then(function(text) {
-                    document.getElementById("probleminput").innerHTML = "";
-                    //kontrolovat status?
-                });
-            });
+
             ListMsg();
         }
 
         function solveProblem(){
             if (parseInt(document.getElementById("probleminput").value) === result) {
                 document.getElementById("response").innerHTML = "Správně!";
+                operator.replace(/\+/g, "&2B;")
                 fetch("http://localhost:8888/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
                     response.text().then(function(text) {
                         document.getElementById("probleminput").value = "";
                         //kontrolovat status?
                     });
                 });
-                displayResult()
+                operator.replace(/&2B/g, "+;")
+                displayResult(false)
                 generateProblem()
             } else {
                 document.getElementById("response").innerHTML = "Špatně!";
+                document.getElementById("result").innerHTML = "";
             }
 
             //document.getElementById("response").value = number1;
@@ -82,8 +83,10 @@
                 });
             });
         }
-        function displayResult() {
-            document.getElementById("response").innerHTML = "";
+        function displayResult(clear = true) {
+            if (clear) {
+                document.getElementById("response").innerHTML = "";
+            }
             document.getElementById("result").innerHTML = "Výsledek je: " + result + "!";
         }
         function onload(){
@@ -113,7 +116,7 @@ Kolik je <b id="number1"></b> <b id="operator"></b> <b id="number2"></b> ?
 <b id="response"></b> <b id="result"></b>
 <br><br>
 
-<input type="button" value="Zobraz výsledek" onclick="displayResult()"><input type="button" value="Nový příklad" onclick="generateProblem()">
+<input type="button" value="Zobraz výsledek" onclick="displayResult()"><input type="button" value="Nový příklad" onclick="generateProblem(true)">
 
 </body>
 </html>
