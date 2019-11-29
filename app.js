@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const  url = require('url');
 const  apiproblemlog = require('./api-problemlog').apiproblemlog; //import fce .=tato slozka
+const  apigenprob = require('./api-generateproblem').apigenprob;
 
 let msgs = [];
 
@@ -51,6 +52,9 @@ http.createServer((req, res) => {
         obj.rokNarozeni = 1980;
         JSON.stringify(obj);
         res.end(JSON.stringify(obj));
+    } else if (q.pathname.startsWith(("/log/genprob"))) {
+
+        apigenprob(req, res, q);
     } else if (q.pathname.startsWith(("/log"))) {
         apiproblemlog(req, res, q, msgs);
     }

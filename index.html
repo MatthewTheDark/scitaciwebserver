@@ -20,26 +20,18 @@
                 document.getElementById("response").innerHTML = "";
                 document.getElementById("result").innerHTML = "";
             }
-            number1 = rannum(1,20);
-            number2 = rannum(1,20);
-            let operatornum = rannum(1,4);
-            if (operatornum === 1){
-                operator = "&#43;";
-                result = number1 + number2;
-            } else if (operatornum === 2){
-                operator = "-";
-                result = number1 - number2;
-            } else if (operatornum === 3){
-                operator = "*";
-                result = number1 * number2;
-            } else {
-                operator = "/";
-                number1 = number2 * number1;
-                result = number1 / number2;
-            }
+            fetch("http://localhost:8888/log/genprob?number1=" + number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    number1 = obj.number1;
+                    number2 = obj.number2;
+                    operator = obj.operator;
+                });
+            });
             document.getElementById("number1").innerHTML = number1;
             document.getElementById("number2").innerHTML = number2;
             document.getElementById("operator").innerHTML = operator;
+
 
             ListMsg();
         }
@@ -47,15 +39,15 @@
         function solveProblem(){
             if (parseInt(document.getElementById("probleminput").value) === result) {
                 document.getElementById("response").innerHTML = "Správně!";
-                operator.replace(/\+/g, "&2B;")
-                fetch("http://localhost:8888/log/addproblem?number1="+number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
+                operator.replace(/\+/g, "&2B;");
+                fetch("http://localhost:8888/log/addproblem?number1=" + number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
                     response.text().then(function(text) {
                         document.getElementById("probleminput").value = "";
                         //kontrolovat status?
                     });
                 });
-                operator.replace(/&2B/g, "+;")
-                displayResult(false)
+                operator.replace(/&2B/g, "+;");
+                displayResult(false);
                 generateProblem()
             } else {
                 document.getElementById("response").innerHTML = "Špatně!";
@@ -84,6 +76,12 @@
             });
         }
         function displayResult(clear = true) {
+            fetch("http://localhost:8888/log/genprob?number1=" + number1 + "&number2=" + number2 + "&operator=" + operator + "&result=" + result).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    result = obj.result;
+                });
+            });
             if (clear) {
                 document.getElementById("response").innerHTML = "";
             }
